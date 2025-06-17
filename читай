@@ -1,0 +1,114 @@
+✅ Что делает программа:
+Создаёт файл базы данных users.db
+
+Создаёт таблицу users
+
+Добавляет пользователей
+
+Получает и выводит всех пользователей
+
+Обновляет и удаляет записи
+ Необходимые пакеты:
+Установи через NuGet:
+System.Data.SQLite.Core
+💻 Пример кода (C# Console App)
+using System;
+using System.Data.SQLite;
+
+class Program
+{
+    static string connectionString = "Data Source=users.db;Version=3;";
+
+    static void Main()
+    {
+        CreateTable();
+
+        AddUser("Иван", 30);
+        AddUser("Мария", 25);
+
+        Console.WriteLine("Все пользователи:");
+        GetAllUsers();
+
+        UpdateUser(1, "Иван Иванов", 31);
+        DeleteUser(2);
+
+        Console.WriteLine("\nПосле обновления и удаления:");
+        GetAllUsers();
+    }
+
+    static void CreateTable()
+    {
+        using (var conn = new SQLiteConnection(connectionString))
+        {
+            conn.Open();
+            var cmd = new SQLiteCommand(@"
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    name TEXT NOT NULL,
+                    age INTEGER NOT NULL
+                )", conn);
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    static void AddUser(string name, int age)
+    {
+        using (var conn = new SQLiteConnection(connectionString))
+        {
+            conn.Open();
+            var cmd = new SQLiteCommand("INSERT INTO users (name, age) VALUES (@name, @age)", conn);
+            cmd.Parameters.AddWithValue("@name", name);
+            cmd.Parameters.AddWithValue("@age", age);
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    static void GetAllUsers()
+    {
+        using (var conn = new SQLiteConnection(connectionString))
+        {
+            conn.Open();
+            var cmd = new SQLiteCommand("SELECT * FROM users", conn);
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    Console.WriteLine($"ID: {reader["id"]}, Имя: {reader["name"]}, Возраст: {reader["age"]}");
+                }
+            }
+        }
+    }
+
+    static void UpdateUser(int id, string name, int age)
+    {
+        using (var conn = new SQLiteConnection(connectionString))
+        {
+            conn.Open();
+            var cmd = new SQLiteCommand("UPDATE users SET name = @name, age = @age WHERE id = @id", conn);
+            cmd.Parameters.AddWithValue("@name", name);
+            cmd.Parameters.AddWithValue("@age", age);
+            cmd.Parameters.AddWithValue("@id", id);
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    static void DeleteUser(int id)
+    {
+        using (var conn = new SQLiteConnection(connectionString))
+        {
+            conn.Open();
+            var cmd = new SQLiteCommand("DELETE FROM users WHERE id = @id", conn);
+            cmd.Parameters.AddWithValue("@id", id);
+            cmd.ExecuteNonQuery();
+        }
+    }
+}
+
+📌 Как запустить:
+Создай Console App в Visual Studio.
+
+Установи NuGet-пакет: System.Data.SQLite.Core
+
+Вставь код в Program.cs.
+
+Запуст
